@@ -8,7 +8,23 @@ const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
  * Check if the given path is a local file path
  */
 export function isPathLocal(imagePath: string): boolean {
-  return imagePath.startsWith('/') || imagePath.startsWith('./') || imagePath.startsWith('../');
+  // Unix-style paths
+  if (imagePath.startsWith('/') || imagePath.startsWith('./') || imagePath.startsWith('../')) {
+    return true;
+  }
+  // Windows absolute paths with drive letter (e.g., C:\ or C:/)
+  if (/^[a-zA-Z]:[/\\]/.test(imagePath)) {
+    return true;
+  }
+  // Windows UNC paths (e.g., \\server\share)
+  if (imagePath.startsWith('\\\\')) {
+    return true;
+  }
+  // Windows relative paths with backslash (e.g., .\images\photo.png)
+  if (imagePath.startsWith('.\\') || imagePath.startsWith('..\\')) {
+    return true;
+  }
+  return false;
 }
 
 /**

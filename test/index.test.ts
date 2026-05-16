@@ -74,6 +74,22 @@ describe('Image Recognition MCP Server Tests', () => {
       });
     });
 
+    it('should identify Windows local file paths correctly', () => {
+      const windowsLocalPaths = [
+        'C:\\Users\\photo.png',
+        'C:/Users/photo.png',
+        'D:\\project\\images\\test.png',
+        'D:/project/images/test.png',
+        '.\\images\\test.png',
+        '..\\assets\\photo.jpg',
+        '\\\\server\\share\\image.png'
+      ];
+
+      windowsLocalPaths.forEach(testPath => {
+        expect(isPathLocal(testPath)).toBe(true);
+      });
+    });
+
     it('should identify URL paths correctly', () => {
       const urlPaths = [
         'https://example.com/image.jpg',
