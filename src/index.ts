@@ -60,7 +60,7 @@ server.registerTool(
       const absolutePath = validateLocalPath(imageUrl, allowedPaths, allowAllPaths);
 
       // Convert local file to image content
-      imageContent = createLocalImageContent(absolutePath);
+      imageContent = await createLocalImageContent(absolutePath);
     } else {
       // Handle as URL - validate domain if ALLOWED_DOMAINS is set
       validateUrlDomain(imageUrl, allowedDomains);

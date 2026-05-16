@@ -1,38 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { getMimeType } from '../src/image-processor.js';
+import { convertImageToDataUrl } from '../src/image-processor.js';
 import { isPathLocal, isPathAllowed, validateExtension, validateFileExists } from '../src/path-validator.js';
 import fs from 'fs';
 import path from 'path';
 
 describe('Image Recognition MCP Server Tests', () => {
-  describe('getMimeType', () => {
-    it('should return correct MIME type for JPEG files', () => {
-      expect(getMimeType('test.jpg')).toBe('image/jpeg');
-      expect(getMimeType('test.jpeg')).toBe('image/jpeg');
-    });
-
-    it('should return correct MIME type for PNG files', () => {
-      expect(getMimeType('test.png')).toBe('image/png');
-    });
-
-    it('should return correct MIME type for GIF files', () => {
-      expect(getMimeType('test.gif')).toBe('image/gif');
-    });
-
-    it('should return correct MIME type for WebP files', () => {
-      expect(getMimeType('test.webp')).toBe('image/webp');
-    });
-
-    it('should throw error for unknown extensions', () => {
-      expect(() => getMimeType('test.unknown')).toThrow('Unsupported extension for MIME type');
-    });
-
-    it('should handle uppercase extensions', () => {
-      expect(getMimeType('test.PNG')).toBe('image/png');
-      expect(getMimeType('test.JPG')).toBe('image/jpeg');
-    });
-  });
-
   describe('Test Image File Validation', () => {
     const testImagePath = path.join(process.cwd(), 'test', 'test.png');
     let imageBuffer: Buffer;
@@ -50,14 +22,10 @@ describe('Image Recognition MCP Server Tests', () => {
       expect(imageBuffer.length).toBeGreaterThan(0);
     });
 
-
-    it('should create valid data URL from test image', () => {
-      const base64 = imageBuffer.toString('base64');
-      const mimeType = getMimeType(testImagePath);
-      const dataUrl = `data:${mimeType};base64,${base64}`;
-
+    it('should create valid data URL from test image', async () => {
+      const dataUrl = await convertImageToDataUrl(testImagePath);
       expect(dataUrl).toMatch(/^data:image\/png;base64,/);
-      expect(dataUrl.length).toBeGreaterThan(100); // Should have substantial content
+      expect(dataUrl.length).toBeGreaterThan(100);
     });
   });
 
@@ -149,19 +117,10 @@ describe('Image Recognition MCP Server Tests', () => {
   });
 
   describe('Image Format Support Tests', () => {
-    it('should support common image formats', () => {
-      const supportedFormats = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-
-      supportedFormats.forEach(format => {
-        const mimeType = getMimeType(`test${format}`);
-        expect(mimeType).toMatch(/^image\//);
-      });
-    });
-
-    it('should get correct MIME type for test.png', () => {
-      const testImagePath = './test/test.png';
-      const mimeType = getMimeType(testImagePath);
-      expect(mimeType).toBe('image/png');
+    it('should detect MIME type from actual image content', async () => {
+      const testImagePath = path.join(process.cwd(), 'test', 'test.png');
+      const dataUrl = await convertImageToDataUrl(testImagePath);
+      expect(dataUrl).toMatch(/^data:image\/png;base64,/);
     });
   });
 
